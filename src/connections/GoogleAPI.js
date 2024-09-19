@@ -36,5 +36,7 @@ export const getRows = async (table_name) => {
     range: table_name,
   })
 
+  console.log(response.rows)
+
   return response
 }
