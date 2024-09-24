@@ -3,11 +3,7 @@ import dotenv from 'dotenv'
 
 dotenv.config()
 
-const {
-  GOOGLE_SPREADSHEET_ID,
-  GOOGLE_SERVICE_ACCOUNT_EMAIL,
-  GOOGLE_PRIVATE_KEY,
-} = process.env
+const { GOOGLE_SERVICE_ACCOUNT_EMAIL, GOOGLE_PRIVATE_KEY } = process.env
 
 const auth = new google.auth.GoogleAuth({
   credentials: {
@@ -18,8 +14,6 @@ const auth = new google.auth.GoogleAuth({
   scopes: 'https://www.googleapis.com/auth/spreadsheets',
 })
 
-const spreadsheetId = GOOGLE_SPREADSHEET_ID
-
 const client = async () => {
   return await auth.getClient()
 }
@@ -29,10 +23,10 @@ const googleSheets = google.sheets({
   auth: client,
 })
 
-export const getRows = async (table_name) => {
+export const getRows = async (table_name, spreadsheet_id) => {
   const response = await googleSheets.spreadsheets.values.get({
     auth,
-    spreadsheetId,
+    spreadsheetId: spreadsheet_id,
     range: table_name,
   })
 
