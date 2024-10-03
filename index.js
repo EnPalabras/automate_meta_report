@@ -33,7 +33,7 @@ async function GetMappedData() {
 async function updateData() {
   try {
     const mapped_values = await GetMappedData()
-
+    console.log(mapped_values.length)
     await command(mapped_values)
   } catch (error) {
     console.log(error)
