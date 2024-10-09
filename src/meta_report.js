@@ -9,10 +9,9 @@ const { GOOGLE_SPREADSHEET_META_REPORT_ID } = process.env
 async function LastDateFromDB() {
   try {
     const result = await pool.query('SELECT MAX("Date") FROM "meta_report"')
-    console.log(result.rows[0].max)
     return result.rows[0].max
   } catch (error) {
-    console.log(error)
+    console.log('probando', error)
   }
 }
 
@@ -71,7 +70,9 @@ async function InsertData() {
   const consulta = await FilterDates()
 
   try {
-    const instertAll = await pool.query(consulta)
+    if (consulta.length > 33) {
+      await pool.query(consulta)
+    } else console.log('No hay datos para agregar')
   } catch (error) {
     console.log(error)
   }

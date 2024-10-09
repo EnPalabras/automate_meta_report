@@ -19,7 +19,6 @@ async function command(values) {
 )
     ${values}
     `)
-    console.log(result.rows)
   } catch (error) {
     console.log(error)
   }
