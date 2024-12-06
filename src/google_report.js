@@ -64,8 +64,6 @@ async function FilterDates() {
     .join(', \n')
 
   consulta += valores
-  console.log(consulta)
-
   return consulta
 }
 

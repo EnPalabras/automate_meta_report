@@ -87,7 +87,6 @@ async function GetInstagramByDay() {
   let valores = data
     .map((fila, index) => {
       if (index + 1 === data.length) return
-      if (fila.length !== 14) console.log(fila.length)
       return `(${fila
         .map((valor, index) => {
           if ((index === 12 || index === 13) && valor === '0') {
@@ -101,7 +100,6 @@ async function GetInstagramByDay() {
     .join(', \n')
 
   consulta += valores
-  console.log(consulta)
   return consulta.replace(/,\s*$/, '')
 }
 
@@ -116,7 +114,6 @@ async function GetPostsData() {
 
   let valores = data
     .map((fila, index) => {
-      console.log(fila.length)
       return `(${fila
         .map((valor, index) => {
           if (index > 5 && index < 12) return valor
@@ -127,7 +124,6 @@ async function GetPostsData() {
     .join(', \n')
 
   consulta += valores
-  console.log(consulta)
   return consulta
 }
 
@@ -155,7 +151,6 @@ async function GetStoriesData() {
     .join(', \n')
 
   consulta += valores
-  console.log(consulta)
   return consulta
 }
 

@@ -3,7 +3,6 @@ import pool from './connections/PSQL.js'
 async function UpdateStories(values) {
   try {
     await pool.query('DELETE FROM instagram_stories')
-    console.log(values)
     await pool.query(`INSERT INTO instagram_stories (
     story_id,
     date_uploaded, 
@@ -23,8 +22,6 @@ async function UpdateStories(values) {
     )
     ${values}
     `)
-
-    console.log(values)
   } catch (error) {
     console.log('probando', error)
   }
