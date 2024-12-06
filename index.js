@@ -4,6 +4,7 @@ import dotenv from 'dotenv'
 import InsertData from './src/meta_report.js'
 import InsertGoogleData from './src/google_report.js'
 import UpdateMessaging from './src/messaging_report.js'
+import { UpdateChannelGoogle } from './src/google_channel.js'
 import { UpdateIGByDay, UpdateIGPosts } from './src/instagram_data.js'
 import { UpdateStories } from './src/stories_data.js'
 dotenv.config()
@@ -12,6 +13,7 @@ const {
   GOOGLE_SPREADSHEET_ID,
   GOOGLE_SPREADSHEET_META_REPORT_ID,
   GOOGLE_SPREADSHEET_STORIES_REPORT_ID,
+  GOOGLE_SPREADSHEET_GOOGLE_REPORT_ID,
 } = process.env
 
 function convertDateToYYYYMMDD(dateString) {
@@ -154,6 +156,43 @@ async function GetStoriesData() {
   return consulta
 }
 
+async function GetGoogleChannel() {
+  const response = await getRows(
+    'Channel Report!A2:J',
+    GOOGLE_SPREADSHEET_GOOGLE_REPORT_ID
+  )
+  const data = response.data.values
+
+  let consulta = 'VALUES '
+
+  let valores = data
+    .map((fila) => {
+      const fecha = new Date(fila[0]).toISOString().slice(0, 10)
+      return `('${fecha}', ${fila
+        .slice(1)
+        .map((valor, index) => {
+          if (index === 0) {
+            return `'${valor.replace(/'/g, "\\'")}'`
+          } else if (index !== 10) {
+            if (valor.trim() === '') {
+              return 0 // Reemplazamos por 0 si está vacío
+            } else if (!isNaN(parseFloat(valor))) {
+              return valor // Dejamos el valor como número (incluye decimales)
+            } else {
+              return `'${valor.replace(/'/g, "\\'")}'` // Escapamos las comillas simples internas
+            }
+          }
+          // Verificamos si está vacío o si es un número (incluyendo decimales)
+        })
+        .join(', ')})`
+    })
+    .join(', \n')
+
+  consulta += valores
+  console.log(consulta)
+  return consulta
+}
+
 async function updateData() {
   try {
     const mapped_values = await GetMappedData()
@@ -161,7 +200,9 @@ async function updateData() {
     const ig_data_by_day = await GetInstagramByDay()
     const get_stories_data = await GetStoriesData()
     const posts = await GetPostsData()
+    const google_channel = await GetGoogleChannel()
     await UpdateStories(get_stories_data)
+    await UpdateChannelGoogle(google_channel)
     await command(mapped_values)
     await UpdateMessaging(values_messaging)
     await InsertGoogleData()
