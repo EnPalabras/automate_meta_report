@@ -12,8 +12,6 @@ async function UpdateMessaging(values) {
     )
     ${values}
     `)
-
-    console.log(values)
   } catch (error) {
     console.log('probando', error)
   }

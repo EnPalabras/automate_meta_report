@@ -2,6 +2,7 @@ import { getRows } from './src/connections/GoogleAPI.js'
 import command from './src/postgresql.js'
 import dotenv from 'dotenv'
 import InsertData from './src/meta_report.js'
+import InsertGoogleData from './src/google_report.js'
 import UpdateMessaging from './src/messaging_report.js'
 import { UpdateIGByDay, UpdateIGPosts } from './src/instagram_data.js'
 import { UpdateStories } from './src/stories_data.js'
@@ -143,7 +144,9 @@ async function GetStoriesData() {
     .map((fila, index) => {
       return `(${fila
         .map((valor, index) => {
-          if (index === 1 || index === 6) return convertDateToYYYYMMDD(valor)
+          if (index === 6) return convertDateToYYYYMMDD(valor)
+          if (index === 1) valor
+
           if (index > 6) return valor
           return `'${valor.replaceAll("'", '')}'`
         })
@@ -166,7 +169,7 @@ async function updateData() {
     await UpdateStories(get_stories_data)
     await command(mapped_values)
     await UpdateMessaging(values_messaging)
-
+    await InsertGoogleData()
     await InsertData()
     await UpdateIGByDay(ig_data_by_day)
     await UpdateIGPosts(posts)

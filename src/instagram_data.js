@@ -21,8 +21,6 @@ async function UpdateIGByDay(values) {
     )
     ${values}
     `)
-
-    console.log(values)
   } catch (error) {
     console.log('probando', error)
   }
@@ -48,8 +46,6 @@ async function UpdateIGPosts(values) {
     )
     ${values}
     `)
-
-    console.log(values)
   } catch (error) {
     console.log('probando', error)
   }
