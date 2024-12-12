@@ -7,6 +7,7 @@ import UpdateMessaging from './src/messaging_report.js'
 import { UpdateChannelGoogle } from './src/google_channel.js'
 import { UpdateIGByDay, UpdateIGPosts } from './src/instagram_data.js'
 import { UpdateStories } from './src/stories_data.js'
+import { UpdateUTMAliados } from './src/utm_aliados.js'
 dotenv.config()
 
 const {
@@ -193,6 +194,33 @@ async function GetGoogleChannel() {
   return consulta
 }
 
+async function GetUTMAliados() {
+  const response = await getRows(
+    'UTM Report!A2:I',
+    GOOGLE_SPREADSHEET_GOOGLE_REPORT_ID
+  )
+  const data = response.data.values
+
+  let consulta = 'VALUES '
+
+  let valores = data
+    .map((fila, index) => {
+      return `(${fila
+        .map((valor, index) => {
+          // if (index === 6) return convertDateToYYYYMMDD(valor)
+          // if (index === 0) return valor
+          if (index > 1) return valor
+          return `'${valor.replaceAll("'", '')}'`
+        })
+        .join(', ')})`
+    })
+    .join(', \n')
+
+  consulta += valores
+  console.log(consulta)
+  return consulta
+}
+
 async function updateData() {
   try {
     const mapped_values = await GetMappedData()
@@ -201,6 +229,8 @@ async function updateData() {
     const get_stories_data = await GetStoriesData()
     const posts = await GetPostsData()
     const google_channel = await GetGoogleChannel()
+    const get_utm_data = await GetUTMAliados()
+    await UpdateUTMAliados(get_utm_data)
     await UpdateStories(get_stories_data)
     await UpdateChannelGoogle(google_channel)
     await command(mapped_values)
