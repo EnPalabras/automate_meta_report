@@ -8,6 +8,8 @@ import { UpdateChannelGoogle } from './src/google_channel.js'
 import { UpdateIGByDay, UpdateIGPosts } from './src/instagram_data.js'
 import { UpdateStories } from './src/stories_data.js'
 import { UpdateUTMAliados } from './src/utm_aliados.js'
+import InsertDataMeli from './src/mercado_libre.js'
+
 dotenv.config()
 
 const {
@@ -237,8 +239,10 @@ async function updateData() {
     await UpdateMessaging(values_messaging)
     await InsertGoogleData()
     await InsertData()
-    await UpdateIGByDay(ig_data_by_day)
-    await UpdateIGPosts(posts)
+    await InsertDataMeli()
+
+    // await UpdateIGByDay(ig_data_by_day)
+    // await UpdateIGPosts(posts)
   } catch (error) {
     console.log(error)
   }
