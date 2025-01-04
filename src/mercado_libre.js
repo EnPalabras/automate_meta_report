@@ -35,7 +35,8 @@ async function FilterDates() {
 
   const arrayFiltrado = consultas.filter((lista) => lista[1] >= fechaSiguiente)
 
-  console.log(arrayFiltrado)
+  if (arrayFiltrado.length === 0)
+    return console.log('No hay datos de Mercado Libre para agregar')
 
   let consulta = 'INSERT INTO "meli_campaigns" VALUES '
   let valores = arrayFiltrado
@@ -61,10 +62,7 @@ async function FilterDates() {
         .join(', ')})`
     })
     .join(', \n')
-  console.log(valores)
-
   consulta += valores
-  console.log(consulta)
   return consulta
 }
 

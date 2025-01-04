@@ -38,6 +38,8 @@ async function FilterDates() {
   const arrayFiltrado = consultas.filter((lista) => lista[0] >= fechaSiguiente)
 
   let consulta = 'INSERT INTO "google_paid_report" VALUES '
+  if (arrayFiltrado.length === 0)
+    return console.log('No hay datos de Google para agregar')
 
   let valores = arrayFiltrado
 
@@ -64,6 +66,8 @@ async function FilterDates() {
     .join(', \n')
 
   consulta += valores
+
+  console.log(consulta)
   return consulta
 }
 

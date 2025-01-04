@@ -9,6 +9,7 @@ import { UpdateIGByDay, UpdateIGPosts } from './src/instagram_data.js'
 import { UpdateStories } from './src/stories_data.js'
 import { UpdateUTMAliados } from './src/utm_aliados.js'
 import InsertDataMeli from './src/mercado_libre.js'
+import { UpdateCombinedReport } from './src/combinedReport.js'
 
 dotenv.config()
 
@@ -17,6 +18,7 @@ const {
   GOOGLE_SPREADSHEET_META_REPORT_ID,
   GOOGLE_SPREADSHEET_STORIES_REPORT_ID,
   GOOGLE_SPREADSHEET_GOOGLE_REPORT_ID,
+  GOOGLE_SPREADSHEET_PAID_CHANNELS_REPORT,
 } = process.env
 
 function convertDateToYYYYMMDD(dateString) {
@@ -192,7 +194,6 @@ async function GetGoogleChannel() {
     .join(', \n')
 
   consulta += valores
-  console.log(consulta)
   return consulta
 }
 
@@ -219,6 +220,31 @@ async function GetUTMAliados() {
     .join(', \n')
 
   consulta += valores
+  return consulta
+}
+
+async function GetCombinedData() {
+  const response = await getRows(
+    'Combined Report!A2:H',
+    GOOGLE_SPREADSHEET_PAID_CHANNELS_REPORT
+  )
+  const data = response.data.values
+
+  let consulta = 'VALUES '
+
+  let valores = data
+    .map((fila, index) => {
+      return `(${fila
+        .map((valor, index) => {
+          if (index === 1) valor
+          if (index > 2) return valor
+          return `'${valor.replaceAll("'", '')}'`
+        })
+        .join(', ')})`
+    })
+    .join(', \n')
+
+  consulta += valores
   console.log(consulta)
   return consulta
 }
@@ -229,9 +255,12 @@ async function updateData() {
     const values_messaging = await GetMessagingData()
     const ig_data_by_day = await GetInstagramByDay()
     const get_stories_data = await GetStoriesData()
-    const posts = await GetPostsData()
     const google_channel = await GetGoogleChannel()
     const get_utm_data = await GetUTMAliados()
+
+    const get_combined_data = await GetCombinedData()
+    await UpdateCombinedReport(get_combined_data)
+
     await UpdateUTMAliados(get_utm_data)
     await UpdateStories(get_stories_data)
     await UpdateChannelGoogle(google_channel)
@@ -240,9 +269,9 @@ async function updateData() {
     await InsertGoogleData()
     await InsertData()
     await InsertDataMeli()
-
-    // await UpdateIGByDay(ig_data_by_day)
-    // await UpdateIGPosts(posts)
+    await UpdateIGByDay(ig_data_by_day)
+    const posts = await GetPostsData()
+    await UpdateIGPosts(posts)
   } catch (error) {
     console.log(error)
   }
