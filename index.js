@@ -10,6 +10,7 @@ import { UpdateStories } from './src/stories_data.js'
 import { UpdateUTMAliados } from './src/utm_aliados.js'
 import InsertDataMeli from './src/mercado_libre.js'
 import { UpdateCombinedReport } from './src/combinedReport.js'
+import { UpdateUsersByDay, UpdateSalesFunnel } from './src/googleUsersByDay.js'
 
 dotenv.config()
 
@@ -163,7 +164,7 @@ async function GetStoriesData() {
 
 async function GetGoogleChannel() {
   const response = await getRows(
-    'Channel Report!A2:J',
+    'Channel Report!A2:H',
     GOOGLE_SPREADSHEET_GOOGLE_REPORT_ID
   )
   const data = response.data.values
@@ -189,11 +190,85 @@ async function GetGoogleChannel() {
           }
           // Verificamos si está vacío o si es un número (incluyendo decimales)
         })
+
         .join(', ')})`
     })
     .join(', \n')
 
   consulta += valores
+
+  return consulta
+}
+
+async function GetUsersByDay() {
+  const response = await getRows(
+    'Users & CR!A2:H',
+    GOOGLE_SPREADSHEET_GOOGLE_REPORT_ID
+  )
+  const data = response.data.values
+
+  let consulta = 'VALUES '
+
+  let valores = data
+    .map((fila) => {
+      const fecha = new Date(fila[0]).toISOString().slice(0, 10)
+      return `('${fecha}', ${fila
+        .slice(1)
+        .map((valor, index) => {
+          if (index === 0) {
+            return `'${valor.replace(/'/g, "\\'")}'`
+          } else if (index !== 10) {
+            if (valor.trim() === '') {
+              return 0 // Reemplazamos por 0 si está vacío
+            } else if (!isNaN(parseFloat(valor))) {
+              return valor // Dejamos el valor como número (incluye decimales)
+            } else {
+              return `'${valor.replace(/'/g, "\\'")}'` // Escapamos las comillas simples internas
+            }
+          }
+          // Verificamos si está vacío o si es un número (incluyendo decimales)
+        })
+
+        .join(', ')})`
+    })
+    .join(', \n')
+
+  consulta += valores
+
+  return consulta
+}
+
+async function GetSalesFunnel() {
+  const response = await getRows(
+    'Sales Funnel!A2:N',
+    GOOGLE_SPREADSHEET_GOOGLE_REPORT_ID
+  )
+  const data = response.data.values
+
+  let consulta = 'VALUES '
+
+  let valores = data
+    .map((fila) => {
+      const fecha = new Date(fila[0]).toISOString().slice(0, 10)
+      return `('${fecha}', ${fila
+        .slice(1)
+        .map((valor, index) => {
+          if (valor.trim() === '') {
+            return 0 // Reemplazamos por 0 si está vacío
+          } else if (!isNaN(parseFloat(valor))) {
+            return valor // Dejamos el valor como número (incluye decimales)
+          } else {
+            return `'${valor.replace(/'/g, "\\'")}'` // Escapamos las comillas simples internas
+          }
+          // Verificamos si está vacío o si es un número (incluyendo decimales)
+        })
+
+        .join(', ')})`
+    })
+    .join(', \n')
+
+  consulta += valores
+
   return consulta
 }
 
@@ -252,26 +327,38 @@ async function GetCombinedData() {
 async function updateData() {
   try {
     const mapped_values = await GetMappedData()
-    const values_messaging = await GetMessagingData()
-    const ig_data_by_day = await GetInstagramByDay()
-    const get_stories_data = await GetStoriesData()
+    await command(mapped_values)
+
     const google_channel = await GetGoogleChannel()
+    await UpdateChannelGoogle(google_channel)
+
     const get_utm_data = await GetUTMAliados()
+    await UpdateUTMAliados(get_utm_data)
 
     const get_combined_data = await GetCombinedData()
     await UpdateCombinedReport(get_combined_data)
 
-    await UpdateUTMAliados(get_utm_data)
     await UpdateStories(get_stories_data)
-    await UpdateChannelGoogle(google_channel)
-    await command(mapped_values)
+    const get_stories_data = await GetStoriesData()
+
     await UpdateMessaging(values_messaging)
+    const values_messaging = await GetMessagingData()
+
+    await UpdateIGByDay(ig_data_by_day)
+    const ig_data_by_day = await GetInstagramByDay()
+
+    const posts = await GetPostsData()
+    await UpdateIGPosts(posts)
+
+    const usersByDay = await GetUsersByDay()
+    await UpdateUsersByDay(usersByDay)
+
+    const salesFunnel = await GetSalesFunnel()
+    await UpdateSalesFunnel(salesFunnel)
+
     await InsertGoogleData()
     await InsertData()
     await InsertDataMeli()
-    await UpdateIGByDay(ig_data_by_day)
-    const posts = await GetPostsData()
-    await UpdateIGPosts(posts)
   } catch (error) {
     console.log(error)
   }
