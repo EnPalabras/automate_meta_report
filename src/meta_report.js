@@ -8,7 +8,7 @@ const { GOOGLE_SPREADSHEET_META_REPORT_ID } = process.env
 
 async function LastDateFromDB() {
   try {
-    const result = await pool.query('SELECT MAX("Date") FROM "meta_report"')
+    const result = await pool.query('SELECT MAX("date") FROM "meta_report"')
     return result.rows[0].max
   } catch (error) {
     console.log('probando', error)
