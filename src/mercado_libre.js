@@ -30,6 +30,7 @@ async function FilterDates() {
   const consultas = await GetDataFromSheets()
   const last_date = await LastDateFromDB()
   const next_date = new Date(last_date)
+
   next_date.setDate(next_date.getDate() + 1)
   const fechaSiguiente = next_date.toISOString().slice(0, 10)
 
