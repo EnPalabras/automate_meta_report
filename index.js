@@ -357,8 +357,8 @@ async function updateData() {
     await UpdateSalesFunnel(salesFunnel)
 
     await InsertGoogleData()
-    await InsertData()
     await InsertDataMeli()
+    await InsertData()
   } catch (error) {
     console.log(error)
   }

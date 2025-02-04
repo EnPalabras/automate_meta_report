@@ -33,7 +33,7 @@ async function FilterDates() {
   next_date.setDate(next_date.getDate() + 1)
   const fechaSiguiente = next_date.toISOString().slice(0, 10)
 
-  const arrayFiltrado = consultas.filter((lista) => lista[0] === fechaSiguiente)
+  const arrayFiltrado = consultas.filter((lista) => lista[0] >= fechaSiguiente)
 
   let consulta = 'INSERT INTO "meta_report" VALUES '
 
