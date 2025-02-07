@@ -300,7 +300,7 @@ async function GetUTMAliados() {
 
 async function GetCombinedData() {
   const response = await getRows(
-    'Combined Report!A2:H',
+    'Combined by Day!A2:H',
     GOOGLE_SPREADSHEET_PAID_CHANNELS_REPORT
   )
   const data = response.data.values
@@ -328,37 +328,52 @@ async function updateData() {
   try {
     const mapped_values = await GetMappedData()
     await command(mapped_values)
+    console.log('Terminó el Mapped_Values')
 
     const google_channel = await GetGoogleChannel()
     await UpdateChannelGoogle(google_channel)
+    console.log('Terminó el Google Channel')
 
     const get_utm_data = await GetUTMAliados()
     await UpdateUTMAliados(get_utm_data)
+    console.log('Terminó el GTM Aliados')
 
     const get_combined_data = await GetCombinedData()
     await UpdateCombinedReport(get_combined_data)
+    console.log('Terminó el Get Combined Data')
 
-    await UpdateStories(get_stories_data)
     const get_stories_data = await GetStoriesData()
+    await UpdateStories(get_stories_data)
+    console.log('Terminó el Get Stories')
 
-    await UpdateMessaging(values_messaging)
     const values_messaging = await GetMessagingData()
+    await UpdateMessaging(values_messaging)
+    console.log('Terminó el Get Messaging')
 
-    await UpdateIGByDay(ig_data_by_day)
     const ig_data_by_day = await GetInstagramByDay()
+    await UpdateIGByDay(ig_data_by_day)
+    console.log('Terminó el IG by Day')
 
     const posts = await GetPostsData()
     await UpdateIGPosts(posts)
+    console.log('Terminó el IG Posts')
 
     const usersByDay = await GetUsersByDay()
     await UpdateUsersByDay(usersByDay)
+    console.log('Terminó el Get Users by Day')
 
     const salesFunnel = await GetSalesFunnel()
     await UpdateSalesFunnel(salesFunnel)
+    console.log('Terminó el Get Funnel')
 
     await InsertGoogleData()
-    await InsertDataMeli()
+    console.log('Terminó el Insert Google Data')
+
     await InsertData()
+    console.log('Terminó el Insert Data')
+
+    await InsertDataMeli()
+    console.log('Terminó el Insert Data MELI')
   } catch (error) {
     console.log(error)
   }
