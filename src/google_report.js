@@ -42,7 +42,6 @@ async function FilterDates() {
     return console.log('No hay datos de Google para agregar')
 
   let valores = arrayFiltrado
-
     .map((fila) => {
       const fecha = new Date(fila[0]).toISOString().slice(0, 10)
       return `('${fecha}', ${fila

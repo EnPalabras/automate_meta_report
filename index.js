@@ -89,12 +89,14 @@ async function GetInstagramByDay() {
     GOOGLE_SPREADSHEET_META_REPORT_ID
   )
   const data = response.data.values
-
+  const largo = data.length - 2
+  console.log(largo)
+  const registered_data = data.splice(0, largo)
   let consulta = 'VALUES '
 
-  let valores = data
+  let valores = registered_data
     .map((fila, index) => {
-      if (index + 1 === data.length) return
+      //if (index + 1 === data.length) return
       return `(${fila
         .map((valor, index) => {
           if ((index === 12 || index === 13) && valor === '0') {
@@ -108,6 +110,7 @@ async function GetInstagramByDay() {
     .join(', \n')
 
   consulta += valores
+  console.log(consulta)
   return consulta.replace(/,\s*$/, '')
 }
 
