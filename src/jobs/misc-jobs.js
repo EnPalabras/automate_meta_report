@@ -17,8 +17,26 @@ export const adsMappingJob = async () => {
   try {
     const data = await getRows('Sheet1!A2:L', MAIN_SPREADSHEET_ID);
     
-    const valuesClause = sheetsClient.formatRowsForSql(data, (row) => {
-      return `(${row.map(value => `'${value.replace(/'/g, "''")}'`).join(', ')})`;
+    // Encontrar el número máximo de columnas en los datos
+    const maxColumns = 12; // A2:L son 12 columnas
+    
+    // Asegurar que todas las filas tengan el mismo número de columnas
+    const normalizedData = data.map(row => {
+      // Si la fila tiene menos columnas que el máximo, rellenar con valores vacíos
+      if (row.length < maxColumns) {
+        return [...row, ...Array(maxColumns - row.length).fill('')];
+      }
+      return row;
+    });
+    
+    const valuesClause = sheetsClient.formatRowsForSql(normalizedData, (row) => {
+      return `(${row.map(value => {
+        // Manejar valores vacíos o nulos
+        if (value === undefined || value === null || value.trim() === '') {
+          return 'NULL';
+        }
+        return `'${value.replace(/'/g, "''")}'`;
+      }).join(', ')})`;
     });
     
     await adsRepository.updateAdsMapping(valuesClause);
@@ -28,7 +46,6 @@ export const adsMappingJob = async () => {
   }
   logger.end('Ads Mapping');
 };
-
 /**
  * Process combined report data
  */
