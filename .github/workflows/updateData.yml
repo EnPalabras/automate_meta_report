@@ -28,7 +28,7 @@ on:
     types:
       - webhook
   schedule:
-    - cron: '00 06 * * *'
+    - cron: '00 10 * * *'
 
 jobs:
   build:
