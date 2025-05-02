@@ -15,7 +15,7 @@ const PAID_CHANNELS_SPREADSHEET_ID = config.google.spreadsheets.paidChannels;
 export const adsMappingJob = async () => {
   logger.start('Ads Mapping');
   try {
-    const data = await getRows('Sheet1!A2:L', MAIN_SPREADSHEET_ID);
+    const data = await getRows('Mapping!A2:L', MAIN_SPREADSHEET_ID);
     
     // Encontrar el número máximo de columnas en los datos
     const maxColumns = 12; // A2:L son 12 columnas
