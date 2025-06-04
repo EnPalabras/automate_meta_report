@@ -85,35 +85,8 @@ const MetaJob = {
     }
     logger.end('Instagram Stories');
   },
-  
-  /**
-   * Process messaging report data
-   */
-  processMessagingReport: async () => {
-    logger.start('Messaging Report');
-    try {
-      const data = await getRows('Messaging Report!A2:E', SPREADSHEET_ID);
-      
-      const valuesClause = sheetsClient.formatRowsForSql(data, (row) => {
-        return `(${row.map((value, index) => {
-          if (index === 4 && value === '0') {
-            return 'NULL';
-          }
-          if (index === 2 || index === 3) {
-            return value;
-          } else {
-            return `'${value}'`;
-          }
-        }).join(', ')})`;
-      });
-      
-      await metaRepository.updateMessaging(valuesClause);
-      logger.success('Messaging Report data updated successfully');
-    } catch (error) {
-      logger.error('Failed to process Messaging Report data', error);
-    }
-    logger.end('Messaging Report');
-  },
+
+
   
   /**
    * Process Meta report data
@@ -173,8 +146,7 @@ const MetaJob = {
     try {
       await MetaJob.processInstagramByDay();
       await MetaJob.processInstagramPosts();
-      await MetaJob.processInstagramStories();
-      await MetaJob.processMessagingReport();
+      //await MetaJob.processInstagramStories();
       await MetaJob.processMetaReport();
       logger.success('All Meta jobs completed successfully');
     } catch (error) {
