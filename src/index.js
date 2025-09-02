@@ -32,14 +32,32 @@ export { updateAllData };
 
 // Run the update when this file is executed directly
 if (process.argv[1] === new URL(import.meta.url).pathname) {
-  updateAllData()
-    .then(() => {
-      logger.info('Program execution completed');
-      // Allow any pending logs to be written before exiting
-      setTimeout(() => process.exit(0), 100);
-    })
-    .catch(error => {
-      logger.error('Unhandled error in program execution', error);
-      process.exit(1);
-    });
+  // Check if a specific command was passed
+  const command = process.argv[2];
+  
+  if (command === 'rebuild-google-historical') {
+    // Run only the historical rebuild
+    logger.info('Starting historical campaigns rebuild process');
+    GoogleJob.rebuildHistoricalCampaigns()
+      .then(() => {
+        logger.info('Historical campaigns rebuild completed');
+        setTimeout(() => process.exit(0), 100);
+      })
+      .catch(error => {
+        logger.error('Error rebuilding historical campaigns', error);
+        process.exit(1);
+      });
+  } else {
+    // Run the normal update process
+    updateAllData()
+      .then(() => {
+        logger.info('Program execution completed');
+        // Allow any pending logs to be written before exiting
+        setTimeout(() => process.exit(0), 100);
+      })
+      .catch(error => {
+        logger.error('Unhandled error in program execution', error);
+        process.exit(1);
+      });
+  }
 }

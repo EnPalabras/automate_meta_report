@@ -202,6 +202,60 @@ const GoogleJob = {
   },
   
   /**
+   * Rebuild historical Google campaign data from a specific sheet
+   * This will:
+   * 1. Delete all data between 2024-01-01 and 2025-03-31
+   * 2. Insert fresh data from "Campaigns Historical Data" sheet
+   */
+  rebuildHistoricalCampaigns: async () => {
+    logger.start('Rebuilding Historical Google Campaigns');
+    logger.info('Starting rebuild process...');
+    try {
+      const startDate = '2024-01-01';
+      const endDate = '2025-03-31';
+      
+      logger.info(`Deleting existing data from ${startDate} to ${endDate}`);
+      await googleRepository.deleteGoogleReportDateRange(startDate, endDate);
+      
+      logger.info('Reading historical data from "Campaigns Historical Data Complete" sheet');
+      const data = await getRows('Campaigns Historical Data Complete!A2:J', SPREADSHEET_ID);
+      
+      if (!data || data.length === 0) {
+        logger.warn('No historical data found in sheet');
+        return;
+      }
+      
+      logger.info(`Found ${data.length} rows of historical data to insert`);
+      
+      const valuesClause = sheetsClient.formatRowsForSql(data, (row) => {
+        const date = formatDate(row[0]);
+        return `('${date}', ${row.slice(1).map((value, index) => {
+          if (index === 0) {
+            return `'${value.replace(/'/g, "\\'")}'`;
+          } else {
+            if (value.trim() === '') {
+              return 0;
+            } else if (!isNaN(parseFloat(value))) {
+              return value;
+            } else {
+              return `'${value.replace(/'/g, "\\'")}'`;
+            }
+          }
+        }).join(', ')})`;
+      });
+      
+      await googleRepository.insertGoogleReportData(valuesClause);
+      logger.success(`Successfully rebuilt historical campaigns data from ${startDate} to ${endDate}`);
+    } catch (error) {
+      logger.error('Failed to rebuild historical campaigns data', error);
+      console.error('Full error details:', error);
+      throw error;
+    } finally {
+      logger.end('Rebuilding Historical Google Campaigns');
+    }
+  },
+  
+  /**
    * Run all Google related jobs
    */
   runAll: async () => {

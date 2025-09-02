@@ -87,6 +87,25 @@ export default {
   },
   
   /**
+   * Delete Google paid report data within a specific date range
+   * @param {string} startDate - Start date in YYYY-MM-DD format
+   * @param {string} endDate - End date in YYYY-MM-DD format
+   * @returns {Promise<void>}
+   */
+  deleteGoogleReportDateRange: async (startDate, endDate) => {
+    try {
+      const result = await db.query(
+        `DELETE FROM google_paid_report WHERE date >= $1 AND date <= $2`,
+        [startDate, endDate]
+      );
+      logger.info(`Deleted ${result.rowCount} rows from Google Paid Report between ${startDate} and ${endDate}`);
+    } catch (error) {
+      logger.error('Failed to delete Google Paid Report data range', error);
+      throw error;
+    }
+  },
+  
+  /**
    * Insert new Google paid report data
    * @param {string} valuesClause - The SQL VALUES clause
    * @returns {Promise<void>}

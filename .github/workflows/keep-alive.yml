@@ -1,0 +1,38 @@
+name: Keep Alive
+
+on:
+  schedule:
+    - cron: '0 0 1,15 * *'  # Días 1 y 15 de cada mes a medianoche UTC
+  workflow_dispatch:  # Permite ejecución manual desde GitHub UI
+
+permissions:
+  contents: write  # Necesario para hacer commits
+
+jobs:
+  keep-alive:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4  # Actualizado a v4
+        with:
+          fetch-depth: 0  # Para tener historial completo si es necesario
+      
+      - name: Keep workflow alive
+        run: |
+          # Crear directorio si no existe
+          mkdir -p .github
+          
+          # Agregar timestamp al archivo
+          echo "$(date +'%Y-%m-%d %H:%M:%S') - Automated keep-alive" >> .github/keep-alive.txt
+          
+          # Mantener solo las últimas 20 líneas para no crecer indefinidamente
+          tail -n 20 .github/keep-alive.txt > .github/keep-alive.tmp || true
+          mv .github/keep-alive.tmp .github/keep-alive.txt
+          
+          # Configurar git
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          
+          # Agregar y commitear solo si hay cambios
+          git add .github/keep-alive.txt
+          git diff --staged --quiet || git commit -m "🤖 Keep workflows alive [skip ci]"
+          git push
