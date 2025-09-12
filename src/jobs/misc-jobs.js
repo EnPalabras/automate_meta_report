@@ -52,11 +52,11 @@ export const adsMappingJob = async () => {
 export const combinedReportJob = async () => {
   logger.start('Combined Report');
   try {
-    const data = await getRows('Combined by Day!A2:H', PAID_CHANNELS_SPREADSHEET_ID);
+    const data = await getRows('Combined by Day!A2:I', PAID_CHANNELS_SPREADSHEET_ID);
     
     const valuesClause = sheetsClient.formatRowsForSql(data, (row) => {
       return `(${row.map((value, index) => {
-        if (index > 2) return value;
+        if (index > 3) return value;
         return `'${value.replaceAll("'", '')}'`;
       }).join(', ')})`;
     });
