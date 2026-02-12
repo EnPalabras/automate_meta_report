@@ -20,9 +20,12 @@ const MetaJob = {
       // Exclude the last two rows which might be totals/summary
       const largoData = data.length - 2;
       const registeredData = data.slice(0, largoData);
-      
       const valuesClause = sheetsClient.formatRowsForSql(registeredData, (row) => {
+        if (row.length < 12) {
+          row.push('0')
+        }
         return `(${row.map((value, index) => {
+          
           if ((index === 12 || index === 13) && value === '0') {
             return 'NULL';
           }
@@ -30,7 +33,7 @@ const MetaJob = {
           return value;
         }).join(', ')})`;
       });
-      
+
       await metaRepository.updateIgByDay(valuesClause);
       logger.success('Instagram by Day data updated successfully');
     } catch (error) {
