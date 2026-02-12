@@ -15,7 +15,7 @@ const MetaJob = {
   processInstagramByDay: async () => {
     logger.start('Instagram by Day');
     try {
-      const data = await getRows('Instagram by Day!A2:N', SPREADSHEET_ID);
+      const data = await getRows('Instagram by Day!A3:N', SPREADSHEET_ID);
       
       // Exclude the last two rows which might be totals/summary
       const largoData = data.length - 2;
