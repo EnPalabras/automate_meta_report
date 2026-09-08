@@ -55,5 +55,20 @@ export const meliRepository = {
     
     await db.query(query);
     logger.success('Mercado Libre data inserted successfully');
+  },
+  
+  /**
+   * Recarga las filas desde una fecha: borra esas fechas e inserta las del sheet.
+   * @param {string} fromDate - YYYY-MM-DD
+   * @param {string} query - INSERT completo
+   */
+  replaceMeliFrom: async (fromDate, query) => {
+    if (!query) {
+      logger.warn('No Mercado Libre data to insert');
+      return;
+    }
+    
+    await db.replaceTableRange('meli_campaigns', `date >= '${fromDate}'`, query);
+    logger.success('Mercado Libre data replaced successfully');
   }
 };

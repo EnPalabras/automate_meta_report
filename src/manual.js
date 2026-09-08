@@ -75,7 +75,7 @@ async function main() {
 
   logger.info(`Ejecutando proceso: ${processName}`);
   try {
-    await fn();
+    await fn(...process.argv.slice(3));
     logger.success(`Proceso "${processName}" finalizado correctamente`);
     process.exit(0);
   } catch (error) {
